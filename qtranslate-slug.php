@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: qTranslate slug
-Plugin URI: http://wordpress.org/extend/plugins/qtranslate-slug/
+Plugin URI: http://codingsomethig.wordpress.com/qtranslate-slug/
 Description: Allows to define a slug for each language and some qTranslate bug fixes
 Version: 0.9
 Author: Carlos Sanz Garcia
@@ -1253,6 +1253,7 @@ function qTranslateSlug_generateLanguageSelectCode($style='', $id='qtrans_langua
 	
 	if($style=='') $style='text';
 	if(is_bool($style)&&$style) $style='image';
+	
 	switch($style) {
 		case 'image':
 		case 'text':
