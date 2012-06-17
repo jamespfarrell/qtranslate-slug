@@ -128,35 +128,28 @@ This version allows TLD domain option for a different Qtranslate fork maded by Z
 
 == Other notes ==
 
+Plugin filters reference:
+
+= qts_validate_post_slug =
+
+filter to process the post slug before is saved on the database.  
+`args: $post (object), $slug (string), $lang (string)`
+
+= qts_validate_term_slug =
+
+filter to process the term slug before is saved on the database.  
+`args: $term (object), $slug (string), $lang (string)`
+
+= qts_url_args =
+
+filter to process the entire url after it has been generated.  
+`args: $url (string), $lang (string)`
  
+= qts_permastruct =
 
-= Plugin filters = 
+filter to process the permastruct, used for change the base.  
+`args: $permastruct (string), $name (string)`
 
-**qts_validate_post_slug**
-
-filter to process the post slug before is saved on the database.
-
-args: $post (object), $slug (string), $lang (string)
-
-**qts_validate_term_slug**
-
-filter to process the term slug before is saved on the database.
-
-args: $term (object), $slug (string), $lang (string) 
-
-**qts_url_args**
-
-filter to process the entire url after it has been generated.
-
-args: $url (string), $lang (string)
- 
-**qts_permastruct**
-
-filter to process the permastruct, used for change the base.
-
-args: $permastruct (string), $name (string)
-
- 
 
 = Todo =
 
