@@ -16,7 +16,7 @@ Adds support for permalink translations and fix some QTranslate deficiencies sin
 
 **Version 1.0** has been written from scratch using OOP. The code has been structured better, the functions have been marked and commented and everything is better integrated with Wordpress API.
 
-This plugin works with **Qtranslate** since **2.5.8**. Also you can checkout this fork############,
+This plugin works with **Qtranslate** since **2.5.8**.
 
 = What is new? =
 
@@ -106,7 +106,7 @@ That's because language selector metabox is hidden, if you are in admin *nav men
 * added support por Taxonomies
 * added support por Custom Post Types
 
-= 0.7 ( enhanced by [Zapo](http://www.qianqin.de/qtranslate/forum/viewtopic.php?f=4&t=1049&start=50#p7499) ) =
+= 0.7 = [Zapo](http://www.qianqin.de/qtranslate/forum/viewtopic.php?f=4&t=1049&start=50#p7499)
 * added suport for qTranslate TLD domain mode (en: domain.com | fr: domain.fr) visit 
 
 = 0.5 and 0.6 enhanched by Marco Del Percio =
@@ -128,23 +128,35 @@ This version allows TLD domain option for a different Qtranslate fork maded by Z
 
 == Other notes ==
 
+ 
+
 = Plugin filters = 
 
 **qts_validate_post_slug**
+
 filter to process the post slug before is saved on the database.
+
 args: $post (object), $slug (string), $lang (string)
 
 **qts_validate_term_slug**
+
 filter to process the term slug before is saved on the database.
-cargs: $term (object), $slug (string), $lang (string) 
+
+args: $term (object), $slug (string), $lang (string) 
 
 **qts_url_args**
+
 filter to process the entire url after it has been generated.
+
 args: $url (string), $lang (string)
  
 **qts_permastruct**
+
 filter to process the permastruct, used for change the base.
+
 args: $permastruct (string), $name (string)
+
+ 
 
 = Todo =
 
