@@ -24,7 +24,6 @@ Adds support for permalink translations and fix some QTranslate deficiencies sin
 = New in version 1.1 = 
 
 * addedd mulsitie support
-* validates nav-menus in upgrade process
 * fixed some parse url bugs
 * fixed slug bases validation 
 
