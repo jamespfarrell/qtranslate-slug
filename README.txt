@@ -23,7 +23,7 @@ Adds support for permalink translations and fix some QTranslate deficiencies sin
 
 = New in version 1.1 = 
 
-* addedd mulsitie support
+* added mulsitie support
 * fixed some parse url bugs
 * fixed slug bases validation 
 
