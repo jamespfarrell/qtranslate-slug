@@ -3,7 +3,7 @@
 Plugin Name: qTranslate slug
 Plugin URI: http://not-only-code.github.com/qtranslate-slug/
 Description: Allows to define a slug for each language and some qTranslate bug fixes
-Version: 1.1.5
+Version: 1.1.7
 Author: Carlos Sanz Garcia
 Author URI: http://github.com/not-only-code
 */
@@ -203,9 +203,9 @@ class QtranslateSlug {
  	 * @since 1.0
 	 */
 	public function set_options() {
-		if (empty($this->options))
+		if (empty($this->options)) {
 			$this->options = get_option(QTS_OPTIONS_NAME);
-		
+    }
 		if (!$this->options)
 			add_option(QTS_OPTIONS_NAME, array());
 		
@@ -258,7 +258,9 @@ class QtranslateSlug {
 		
 		include_once( ABSPATH . 'wp-admin/includes/plugin.php' ); 
 		
-		return ( version_compare($wp_version, "3.3", "<" ) || !is_plugin_active('qtranslate/qtranslate.php') );
+		return ( version_compare($wp_version, "3.3", "<" ) || 
+		  (!is_plugin_active('qtranslate/qtranslate.php') &&
+		   !is_plugin_active('mqtranslate/mqtranslate.php')) );
 	}
 	
 	
@@ -308,20 +310,56 @@ class QtranslateSlug {
 		// checks version and do the installation
 		if ( !$qts_version || $qts_version != QTS_VERSION ) {
 			
-			// install termmeta table using functions from Simple-Term-Meta ( http://wordpress.org/extend/plugins/simple-term-meta/ )
+			// install termmeta table using functions from Simple-Term-Meta 
+			// ( http://wordpress.org/extend/plugins/simple-term-meta/ )
 			install_term_meta_table();
 			
 			// update installed option	
 			update_option('qts_version', QTS_VERSION);
 		}
-		
-		// regenerate rewrite rules in db
-		add_action( 'generate_rewrite_rules', array($this, 'modify_rewrite_rules') );
+    
+  		// regenerate rewrite rules in db
+		add_action( 'generate_rewrite_rules', array(&$this, 'modify_rewrite_rules') );
 		flush_rewrite_rules();
 	}
+  
 	
+
+	/**
+	* register front end styles and enqueue
+	*
+	* @since 1.1.7
+	*/
+	public function register_plugin_styles() {
+		wp_register_style( 'qts_front_styles', plugins_url( '/assets/css/qts-default.css', __FILE__ ) );
+		wp_enqueue_style( 'qts_front_styles' );
+	}
+
+
+
+	/**
+	* print front end styles
+	*
+	* @since 1.1.7
+	*/
+	public function print_plugin_styles() {
+
+		$css_path = dirname(__FILE__).'/assets/css/qts-default.css';
+
+		if (!file_exists($css_path) || !is_readable($css_path)) {
+			return;
+		}
+
+		$default_css_file = file_get_contents($css_path, FILE_USE_INCLUDE_PATH);
+
+		$css = "<style media=\"screen\">\n";
+		$css .= "$default_css_file\n";
+		$css .="</style>\n";
+		echo $css;
+	}
+  
 	
-	
+
 	/**
 	 * actions when deactivating the plugin
 	 *
@@ -331,12 +369,12 @@ class QtranslateSlug {
 		global $wp_rewrite;
 		
 		// regenerate rewrite rules in db
-		remove_action( 'generate_rewrite_rules', array($this, 'modify_rewrite_rules') );
+		remove_action( 'generate_rewrite_rules', array(&$this, 'modify_rewrite_rules') );
 		$wp_rewrite->flush_rules();
 	}
 	
-	
-	
+
+
 	/**
 	 * admin notice: update your old data 
 	 *
@@ -348,8 +386,8 @@ class QtranslateSlug {
 		if ($current_screen->id != 'settings_page_qtranslate-slug-settings'):
 		
 	    echo "<div class=\"updated\">" . PHP_EOL;
-		echo "<p><strong>Qtranslate Slug:</strong></p>" . PHP_EOL;
-		printf("<p>%s <a href=\"%s\" class=\"button\">%s</a></p>", __('Please update your old data to the new system.', 'qts'), add_query_arg(array('page' => 'qtranslate-slug-settings'), 'options-general.php'), __('upgrade now', 'qts')) . PHP_EOL;
+		  echo "<p><strong>Qtranslate Slug:</strong></p>" . PHP_EOL;
+		  printf("<p>%s <a href=\"%s\" class=\"button\">%s</a></p>", __('Please update your old data to the new system.', 'qts'), add_query_arg(array('page' => 'qtranslate-slug-settings'), 'options-general.php'), __('upgrade now', 'qts')) . PHP_EOL;
 	    echo "</div>" . PHP_EOL;
 		
 		endif;
@@ -367,8 +405,8 @@ class QtranslateSlug {
 		
 	    echo "<div class=\"error\">" . PHP_EOL;
 		echo "<p><strong>Qtranslate Slug:</strong></p>" . PHP_EOL;
-		echo "<p>" . __('This plugin requires at least <strong>Wordpress 3.3</strong> and <strong>Qtranslate(2.5.8 or newer)</strong>', 'qts') . "</p>" . PHP_EOL;
-	    echo "</div>" . PHP_EOL;
+		echo "<p>" . __('This plugin requires at least <strong>Wordpress 3.3</strong>,  <strong>mqtranslate( 2.6.2.4 or newer)</strong> or <strong>Qtranslate(2.5.8 or newer)</strong>', 'qts') . "</p>" . PHP_EOL;
+	    echo "</div>" . PHP_EOL; 
 	}
 	
 	
@@ -406,7 +444,7 @@ class QtranslateSlug {
 	private function check_old_versions() {
 		
 		if ( $this->check_old_data() )
-			add_action('admin_notices', array($this, 'notice_update'));
+			add_action('admin_notices', array(&$this, 'notice_update'));
 	}
 	
 	
@@ -417,16 +455,16 @@ class QtranslateSlug {
 	 * @since 1.0
 	 */
 	function init() {
-		
+	  
 		load_plugin_textdomain( 'qts', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 		
 		// checking plugin activate
 		if ( self::block_activate() ) {
 			if (is_admin()) 
-				add_action('admin_notices', array($this, 'notice_dependences'));
+				add_action('admin_notices', array(&$this, 'notice_dependences'));
 			return;
 		}
-		
+    
 		// caching qts options
 		$this->set_options();
 		
@@ -435,33 +473,42 @@ class QtranslateSlug {
 			$this->check_old_versions();
 			
 			// add filters
-			add_filter( 'term_name', array($this, 'term_name'), 0, 2 );
-			add_filter( 'qts_validate_post_slug', array($this, 'validate_post_slug'), 0, 3 );
-			add_filter( 'qts_validate_post_slug', array($this, 'unique_post_slug'), 1, 3 );
-			add_filter( 'qts_validate_term_slug', array($this, 'validate_term_slug'), 0, 3 );
-			add_filter( 'qts_validate_term_slug', array($this, 'unique_term_slug'), 1, 3 );
+			add_filter( 'qts_validate_post_slug', array(&$this, 'validate_post_slug'), 0, 3 );
+			add_filter( 'qts_validate_post_slug', array(&$this, 'unique_post_slug'), 1, 3 );
+			add_filter( 'qts_validate_term_slug', array(&$this, 'validate_term_slug'), 0, 3 );
+			add_filter( 'qts_validate_term_slug', array(&$this, 'unique_term_slug'), 1, 3 );
+			add_filter( 'wp_get_object_terms', array(&$this, 'get_object_terms'), 0, 4 );
+			add_filter( 'get_terms', array(&$this, 'get_terms'), 0, 3 );
 			
 			// admin actions
-			add_action( 'admin_menu', array($this, 'add_slug_meta_box') );
-			add_action( 'save_post', array($this, 'save_postdata'), 605, 2 );
-			add_action( 'delete_term', array($this, 'delete_term'), 0, 3);
-			add_action( 'created_term', array($this, 'save_term'), 605, 3);
-			add_action( 'edited_term', array($this, 'save_term'), 605, 3 );
-			add_action( 'admin_head', array($this, 'hide_slug_box'), 900 );
+			add_action( 'admin_menu', array(&$this, 'add_slug_meta_box') );
+			add_action( 'save_post', array(&$this, 'save_postdata'), 605, 2 );
+			add_action( 'delete_term', array(&$this, 'delete_term'), 0, 3);
+			add_action( 'created_term', array(&$this, 'save_term'), 605, 3);
+			add_action( 'edited_term', array(&$this, 'save_term'), 605, 3 );
+			add_action( 'admin_head', array(&$this, 'hide_slug_box'), 900 );
 			
-			add_action( 'init', array($this, 'taxonomies_hooks'), 805 );
+			add_action( 'init', array(&$this, 'taxonomies_hooks'), 805 );
 			
-			add_action( 'wp_dashboard_setup', array($this, 'remove_dashboard_widgets') );
-			add_action( 'admin_head', array($this, 'hide_quick_edit'), 600 );
-			add_action( 'admin_init', array($this, 'fix_nav_menu') );
+			add_action( 'wp_dashboard_setup', array(&$this, 'remove_dashboard_widgets') );
+			add_action( 'admin_head', array(&$this, 'hide_quick_edit'), 600 );
+			add_action( 'admin_init', array(&$this, 'fix_nav_menu') );
 			
 		} else {
 			
-			add_filter( 'request', array($this, 'filter_request') );
+			add_filter( 'request', array(&$this, 'filter_request') );
+
+			// adds external style file
+    		$qts_options = $this->get_options();
+    		if ( !isset($qts_options[QTS_PREFIX.'styles']) || $qts_options[QTS_PREFIX.'styles'] == "file" ) {
+      			add_action( 'wp_enqueue_scripts', array( &$this, 'register_plugin_styles' ) );
+    		} elseif ($qts_options[QTS_PREFIX.'styles'] == "inline" ) {
+      			add_action( 'wp_print_styles', array( &$this, 'print_plugin_styles' ), 20 );
+    		}
 		}
 		
-		add_filter( 'query_vars', array($this, 'query_vars'));
-		add_action( 'generate_rewrite_rules', array($this, 'modify_rewrite_rules') );
+		add_filter( 'query_vars', array(&$this, 'query_vars'));
+		add_action( 'generate_rewrite_rules', array(&$this, 'modify_rewrite_rules') );
 			
 		// remove some Qtranslate filters
 	    remove_filter( 'page_link', 	'qtrans_convertURL' );
@@ -469,23 +516,37 @@ class QtranslateSlug {
 	    remove_filter( 'category_link', 'qtrans_convertURL' );
 	    remove_filter( 'tag_link', 		'qtrans_convertURL' );
 		
-		add_filter( 'qts_permastruct' , array($this, 'get_extra_permastruct'), 0, 2);
-		add_filter( 'qts_url_args',		array($this, 'parse_url_args'), 0, 1);
-		add_filter( 'home_url',			array($this, 'home_url'), 10, 4);	
-		add_filter( 'post_type_link',	array($this, 'post_type_link'), 600, 4 );
-		add_filter( 'post_link',		array($this, 'post_link'), 0, 3 );
-		add_filter( '_get_page_link',	array($this, '_get_page_link'), 0, 2 );
-		add_filter( 'term_link',		array($this, 'term_link'), 600, 3 );
+		add_filter( 'qts_permastruct' , array(&$this, 'get_extra_permastruct'), 0, 2);
+		add_filter( 'qts_url_args',		array(&$this, 'parse_url_args'), 0, 1);
+		add_filter( 'home_url',			array(&$this, 'home_url'), 10, 4);	
+		add_filter( 'post_type_link',	array(&$this, 'post_type_link'), 600, 4 );
+		add_filter( 'post_link',		array(&$this, 'post_link'), 0, 3 );
+		add_filter( '_get_page_link',	array(&$this, '_get_page_link'), 0, 2 );
+		add_filter( 'term_link',		array(&$this, 'term_link'), 600, 3 );
 		
 		add_filter( 'single_term_title', 'qtrans_useTermLib', 805 );
-		add_filter( 'get_blogs_of_user', array($this, 'blog_names'), 1  );
-		add_action( 'widgets_init', array($this, 'widget_init'), 100 );
+		add_filter( 'get_blogs_of_user', array(&$this, 'blog_names'), 1  );
+		add_action( 'widgets_init', array(&$this, 'widget_init'), 100 );
+		// Add specific CSS class to body class based on current lang
+		add_filter('body_class', array($this, 'qts_body_class'), 600, 1 );
 	}
-	
-	
-	
+		
+
 	/**
-	 * Adds news rules to translate the URL bases, this function must be called on flush_rewrite or 'flush_rewrite_rules' 
+	 * Add a class based on the current language
+	 * @param array $classes list of classes
+	 */
+	public function qts_body_class( $classes ) {
+		// add 'class-name' to the $classes array
+		$classes[] = qtrans_getLanguage();
+	 	
+	 	// return the $classes array
+		return $classes;
+	}
+
+	/**
+	 * Adds news rules to translate the URL bases, 
+	 * this function must be called on flush_rewrite or 'flush_rewrite_rules' 
 	 * 
 	 * @param object $wp_rewrite
 	 *
@@ -617,11 +678,11 @@ class QtranslateSlug {
 		if ( empty($this->permalink_structure) || $q_config['url_mode'] == 1 ) 
 			$base_args['lang'] = $this->get_lang();
 
-		// rebulid query with all args
+		// rebuild query with all args
 		$url = add_query_arg($base_args, $url);
 
-		$url = str_replace('/?', '?', $url); // hack: improve this code
-		$url = str_replace('?', '/?', $url); // hack: improve this code
+		$url = str_replace('/?', '?', $url); // TODO: hack: improve this code
+		$url = str_replace('?', '/?', $url); // TODO: hack: improve this code
 
 		return $url;
 	}
@@ -676,6 +737,8 @@ class QtranslateSlug {
 			$req_uri = trim($req_uri, '/');
 			$req_uri = preg_replace("|^$home_path|", '', $req_uri);
 			$req_uri = trim($req_uri, '/');
+			if ($GLOBALS['q_config']['url_mode'] == QT_URL_PATH)
+        $req_uri = preg_replace("/^{$GLOBALS['q_config']['language']}(\/|$)/", '', $req_uri);
 			$pathinfo = trim($pathinfo, '/');
 			$pathinfo = preg_replace("|^$home_path|", '', $pathinfo);
 			$pathinfo = trim($pathinfo, '/');
@@ -688,7 +751,8 @@ class QtranslateSlug {
 			if ( ! empty($pathinfo) && !preg_match('|^.*' . $wp_rewrite->index . '$|', $pathinfo) ) {
 				$request = $pathinfo;
 			} else {
-				// If the request uri is the index, blank it out so that we don't try to match it against a rule.
+				// If the request uri is the index, blank it out so that 
+				// we don't try to match it against a rule.
 				if ( $req_uri == $wp_rewrite->index )
 					$req_uri = '';
 				$request = $req_uri;
@@ -789,7 +853,7 @@ class QtranslateSlug {
 			
 			$page = wp_cache_get('qts_page_request');
 			if (!$page) 
-				$page = isset($query['page_id']) ? get_page($query['page_id']) : $this->get_page_by_path($query['pagename']);
+				$page = isset($query['page_id']) ? get_post($query['page_id']) : $this->get_page_by_path($query['pagename']);
 			
 			if (!$page) return $query;
 			$id = $page->ID;
@@ -871,6 +935,14 @@ class QtranslateSlug {
 			$id = '';
 			
 		endif;
+		
+	    // -> search
+	    if(isset($query['s'])):
+
+		  $id=$query['s'];
+		  $function="get_search_link";
+	  
+	    endif;	  
 		
 		if ( isset($function) ):
 				
@@ -1010,7 +1082,7 @@ class QtranslateSlug {
 		
 		$foundid = $this->get_page_id_by_path($page_path, $output, $post_type);
 		if ( $foundid )
-			return get_page( $foundid, $output );
+			return get_post( $foundid, $output );
 		
 		return null;
 	}
@@ -1302,7 +1374,11 @@ class QtranslateSlug {
 		if ( !$id )
 			$id = (int) $post->ID;
 		else
+			if(phpversion() >= 5.4) {
+			$current_post = get_post($id);
+			} else {
 			$current_post = &get_post($id);
+			}
 
 		$draft_or_pending = in_array( $current_post->post_status, array( 'draft', 'pending', 'auto-draft' ) );
 
@@ -1341,7 +1417,7 @@ class QtranslateSlug {
 	private function get_page_uri($page) {
 		
 		if ( ! is_object($page) )
-			$page = get_page($page);
+			$page = get_post($page);
 		
 		$uri = get_post_meta( $page->ID, $this->get_meta_key(), true );
 		if (!$uri) $uri =  $page->post_name;
@@ -1351,7 +1427,7 @@ class QtranslateSlug {
 			return $uri;
 
 		while ($page->post_parent != 0) {
-			$page = get_page($page->post_parent);
+			$page = get_post($page->post_parent);
 			
 			$page_name = get_post_meta( $page->ID, $this->get_meta_key(), true );
 			if (!$page_name) $page_name = $page->post_name;
@@ -1439,12 +1515,12 @@ class QtranslateSlug {
 	/**
 	 * Get all Term data from database by Term field and data.
 	 *
-	 * @param string $field Either 'slug', 'name', or 'id'
-	 * @param string|int $value Search for this term value
-	 * @param string $taxonomy Taxonomy Name
-	 * @param string $output Constant OBJECT, ARRAY_A, or ARRAY_N
-	 * @param string $filter Optional, default is raw or no WordPress defined filter will applied.
-	 * @return mixed Term Row from database. Will return false if $taxonomy does not exist or $term was not found.
+	 * @param (string) $field Either 'slug', 'name', or 'id'
+	 * @param (string|int) $value Search for this term value
+	 * @param (string) $taxonomy Taxonomy Name
+	 * @param (string) $output Constant OBJECT, ARRAY_A, or ARRAY_N
+	 * @param (string) $filter Optional, default is raw or no WordPress defined filter will applied.
+	 * @return (mixed) Term Row from database. Will return false if $taxonomy does not exist or $term was not found.
 	 *
 	 * @since 1.0
 	 */
@@ -1498,9 +1574,92 @@ class QtranslateSlug {
 			return $term;
 		}
 	}
-	
-	
-	
+
+
+
+	/**
+	 * Fix for:
+	 * - Taxonomy names in Taxonomy Manage page
+	 * - 'Popular Tags' in Taxonomy (Tags) Manage page
+	 * - Category filter dropdown menu in Post Manage page
+	 * - Category list in Post Edit page
+	 * - 'Most Used' tags list in Post Edit page (but have issues when saving)
+	 * 
+	 * @param (array) $terms
+	 * @param (string|array) $taxonomy
+	 * @since 1.2
+	 */
+	function get_terms($terms, $taxonomy) {
+		
+		global $pagenow;
+		
+		// Although in post edit page the tags in 'most
+		// used' list are translated, but when saving the
+		// post Wordpress considers the translated tags as
+		// new tags. Due to this issue I skip this 'hack'
+		// for tags in post edit page.
+		if ( $pagenow != 'admin-ajax.php' ) {
+			
+			$meta = get_option('qtranslate_term_name');
+			$lang = qtrans_getLanguage();
+			
+			if ( !empty( $terms ) ) {
+				foreach ($terms as $term) {
+					if ($meta[$term->name][$lang]) {
+						$term->name = $meta[$term->name][$lang];
+					}
+				};
+			};
+		}
+
+		return $terms;
+	}
+
+
+
+	/**
+	 * Fix for:
+	 * - Taxonomy & custom taxonomy names in Post Manage page
+	 * - List of tags already added to the post in Post 
+	 * - Edit page (but have issues when saving)
+	 *
+	 * @param (array) $terms
+	 * @param (int|array) $obj_id
+	 * @param (string|array) $taxonomy
+	 * @param (array) $taxonomy
+	 * @since 1.2
+	 */	
+	function get_object_terms($terms, $obj_id, $taxonomy, $args) {
+		
+		global $pagenow;
+		
+		// Although in post edit page the tags are translated,
+		// but when saving/updating the post Wordpress considers
+		// the translated tags as new tags. Due to this
+		// issue I limit this 'hack' to the post manage
+		// page only.
+		if ( $pagenow == 'edit.php' ) {
+			
+			// $taxonomy output seems to be wrapped
+			// in single quotes, thus remove them to
+			// make the output valid
+			$tax = str_replace("'", "", $taxonomy);
+			
+			$meta = get_option('qtranslate_term_name');
+			$lang = qtrans_getLanguage();
+			
+			if ( !empty( $terms ) ) {
+				foreach ($terms as $term) {
+					$term->name = $meta[$term->name][$lang];
+				};
+			};
+		
+		}
+		return $terms;
+	}
+
+
+
 	/**
 	 * hide quickedit button ( functionality not supported by qTranslate )
 	 * 
@@ -1556,11 +1715,11 @@ class QtranslateSlug {
 		
 		if ( function_exists( 'add_meta_box' ) ) {
 			
-			add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array($this, 'draw_meta_box'), 'post', 'side', 'high');
-			add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array($this, 'draw_meta_box'), 'page', 'side', 'high' );
+			add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array(&$this, 'draw_meta_box'), 'post', 'side', 'high');
+			add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array(&$this, 'draw_meta_box'), 'page', 'side', 'high' );
 			
 			foreach ( get_post_types( array('_builtin' => false ) ) as $ptype )
-				add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array($this, 'draw_meta_box'), $ptype, 'side', 'high' );
+				add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array(&$this, 'draw_meta_box'), $ptype, 'side', 'high' );
 		}
 	}
 	
@@ -1727,7 +1886,7 @@ class QtranslateSlug {
 		
 		
 		if ((defined('DOING_AUTOSAVE') && DOING_AUTOSAVE)						// check autosave
-		|| (!isset($_POST['post_ID']) || $post_id != $_POST['post_ID'])			// check revision
+		|| (!isset($_POST['post_ID']) || $post_id != $_POST['post_ID'])	// check revision
 		|| (!wp_verify_nonce( $_POST['qts_nonce'], 'qts_nonce'))				// verify nonce
 		|| (!current_user_can($post_type_object->cap->edit_post, $post_id))) {	// check permission
 			return $post_id;
@@ -1769,7 +1928,7 @@ class QtranslateSlug {
 				$value = ( $slug ) ? htmlspecialchars( $slug , ENT_QUOTES ) : '';
 			
 				echo "<tr class=\"form-field form-required\">" . PHP_EOL;
-				echo "<th scope=\"row\" valig=\"top\"><label for=\"qts_{$lang}_slug\">Slug (".__($q_config['language_name'][$lang], 'qtranslate').")</label></th>" . PHP_EOL;
+				echo "<th scope=\"row\" valig=\"top\"><label for=\"qts_term_{$lang}_slug\">Slug (".__($q_config['language_name'][$lang], 'qtranslate').")</label></th>" . PHP_EOL;
 		    	echo "<td><input type=\"text\" name=\"qts_{$lang}_slug\" value=\"$value\" /></td></tr>" . PHP_EOL;
 			
 			endforeach;
@@ -1790,7 +1949,7 @@ class QtranslateSlug {
 			
 
 				echo "<label for=\"qts_{$lang}_slug\">Slug (".__($q_config['language_name'][$lang], 'qtranslate').")</label>" . PHP_EOL;
-		    	echo "<input type=\"text\" name=\"qts_{$lang}_slug\" value=\"$value\" aria-required=\"true\">" . PHP_EOL;
+		    	echo "<input type=\"text\" name=\"qts_term_{$lang}_slug\" value=\"$value\" aria-required=\"true\">" . PHP_EOL;
 				
 				echo '</div>';
 			
@@ -1812,6 +1971,8 @@ class QtranslateSlug {
 	 * @since 1.0
 	 */
 	public function validate_term_slug( $slug, $term, $lang ) {
+	  
+    
 		global $q_config;
 		
 		$lang_name = $q_config['term_name'][$term->name][$lang];
@@ -1821,7 +1982,7 @@ class QtranslateSlug {
 		$post_name = isset($_POST['name']) ? $_POST['name'] : '';
 		
 		$term_name = isset($_POST[$ajax_name]) ? trim($_POST[$ajax_name]) : $post_name;
-		
+    
 		if (empty($term_name)) return $slug;
 		
 		$name = ( $lang_name == '' || strlen($lang_name) == 0 ) ? $term_name : $lang_name;
@@ -1846,40 +2007,40 @@ class QtranslateSlug {
 	 * @since 1.0
 	 */
 	public function unique_term_slug($slug, $term, $lang) {
+	  
 		global $wpdb;
-		
-        $meta_key_name = $this->get_meta_key($lang);
-        $query = $wpdb->prepare("SELECT term_id FROM $wpdb->termmeta WHERE meta_key = '%s' AND meta_value = '%s' AND term_id != %d ",
-                       $meta_key_name,
-                       $slug,
-                       $term->term_id);
-        $exists_slug = $wpdb->get_results($query);
+    $meta_key_name = $this->get_meta_key($lang);
+    $query = $wpdb->prepare("SELECT term_id FROM $wpdb->termmeta WHERE meta_key = '%s' AND meta_value = '%s' AND term_id != %d ",
+                   $meta_key_name,
+                   $slug,
+                   $term->term_id);
+    $exists_slug = $wpdb->get_results($query);
 
-        if ( empty($exists_slug) )
-            return $slug;
-
-        // If we didn't get a unique slug, try appending a number to make it unique.
-        $query = $wpdb->prepare(
-                    "SELECT meta_value FROM $wpdb->termmeta WHERE meta_key = '%s' AND meta_value = '%s' AND term_id != %d",
-                    $meta_key_name,
-                    $slug,
-                    $term->term_id);
-
-        if ( $wpdb->get_var( $query ) ) {
-            $num = 2;
-            do {
-                $alt_slug = $slug . "-$num";
-                $num++;
-                $slug_check = $wpdb->get_var(
-                                 $wpdb->prepare(
-                                "SELECT meta_value FROM $wpdb->termmeta WHERE meta_key = '%s' AND meta_value = '%s'",
-                                $meta_key_name,
-                                $alt_slug) );
-            } while ( $slug_check );
-            $slug = $alt_slug;
-        }
-
+    if ( empty($exists_slug) )
         return $slug;
+
+    // If we didn't get a unique slug, try appending a number to make it unique.
+    $query = $wpdb->prepare(
+          "SELECT meta_value FROM $wpdb->termmeta WHERE meta_key = '%s' AND meta_value = '%s' AND term_id != %d",
+          $meta_key_name,
+          $slug,
+          $term->term_id);
+
+    if ( $wpdb->get_var( $query ) ) {
+      $num = 2;
+      do {
+        $alt_slug = $slug . "-$num";
+        $num++;
+        $slug_check = $wpdb->get_var(
+          $wpdb->prepare(
+           "SELECT meta_value FROM $wpdb->termmeta WHERE meta_key = '%s' AND meta_value = '%s'",
+           $meta_key_name,
+           $alt_slug) );
+      } while ( $slug_check );
+      $slug = $alt_slug;
+    }
+
+    return $slug;
 	}
 	
 	
@@ -1897,7 +2058,7 @@ class QtranslateSlug {
         global $q_config;
 	     
 		if ( (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE )				// check autosave
-		|| ( !current_user_can('edit_posts') ) ) {                      // check permission
+		|| ( !current_user_can('edit_posts') ) ) {                // check permission
 			return $term_id;
 		}
 		
@@ -1906,7 +2067,19 @@ class QtranslateSlug {
 		foreach( $q_config['enabled_languages'] as $lang ):
 			
 			$meta_name = $this->get_meta_key($lang);
-			$meta_value = apply_filters( 'qts_validate_term_slug', $_POST["qts_{$lang}_slug"], $term, $lang);
+      
+      
+      //LC43: when at the post edit screen and creating a new tag
+      // the $slug comes from $_POST with the value of the post slug,
+      // not with the term slug. 
+      if( $_POST['action'] == "editpost"){
+        // so we use the slug wp gave it
+        $term_slug = $term->slug;
+      } else {
+        // otherwise, its the edit term screen
+        $term_slug =  $_POST["qts_term_{$lang}_slug"];
+      }
+			$meta_value = apply_filters( 'qts_validate_term_slug', $term_slug, $term, $lang);
 			
 			delete_term_meta($term_id, $meta_name);
 			update_term_meta($term_id, $meta_name, $meta_value);
@@ -1942,10 +2115,10 @@ class QtranslateSlug {
 			foreach ($taxonomies  as $taxonomy ) {
 				add_action( $taxonomy->name.'_add_form', 'qtrans_modifyTermFormFor');
 				add_action( $taxonomy->name.'_edit_form', 'qtrans_modifyTermFormFor');
-				add_action( $taxonomy->name.'_add_form',  array($this, 'show_term_fields'));
-				add_action( $taxonomy->name.'_edit_form_fields', array($this, 'show_term_fields') );
-				add_filter('manage_edit-'.$taxonomy->name.'_columns', array($this, 'taxonomy_columns'));
-				add_filter('manage_'.$taxonomy->name.'_custom_column', array($this, 'taxonomy_custom_column'), 0, 3);
+				add_action( $taxonomy->name.'_add_form',  array(&$this, 'show_term_fields'));
+				add_action( $taxonomy->name.'_edit_form_fields', array(&$this, 'show_term_fields') );
+				add_filter('manage_edit-'.$taxonomy->name.'_columns', array(&$this, 'taxonomy_columns'));
+				add_filter('manage_'.$taxonomy->name.'_custom_column', array(&$this, 'taxonomy_custom_column'), 0, 3);
 			}
 		}
 	}
@@ -1984,40 +2157,6 @@ class QtranslateSlug {
 		return false;
 	}
 	
-	
-	
-	/**
-	 * Bug fix for taxonomy names in wp_terms_list_table
-	 *
-	 * @param string $name parsed term name
-	 * @param object $tag term object
-	 * @return string translated term name
-	 *
-	 * @since 1.0
-	 */	
-	function term_name($name, $tag) {
-		
-		$backtrace = debug_backtrace();
-		
-		foreach ( $backtrace as $tracepoint ) {
-			
-			// post page column
-			if ( isset($tracepoint['function']) && $tracepoint['function'] == 'sanitize_term_field' ) {
-				return apply_filters('single_term_title', $name);
-			}
-			
-			// term page column
-			if ( isset($tracepoint['class']) && $tracepoint['class'] == 'WP_Terms_List_Table' ) {
-				$name_array = explode('&#8212; ', $name);
-				array_pop($name_array);
-				array_push($name_array, apply_filters('single_term_title', $tag->name));
-				return implode('&#8212; ', $name_array);
-			}
-			
-		}
-		
-		return $name;
-	}
 	
 	
 	
@@ -2074,7 +2213,7 @@ class QtranslateSlug {
 		if( $pagenow != 'nav-menus.php' ) return;
 	
 		wp_enqueue_script( 'nav-menu-query',  plugins_url( 'assets/js/qts-nav-menu-min.js' , __FILE__ ) , 'nav-menu', '1.0' );
-		add_meta_box( 'qt-languages', __('Languages'), array($this, 'nav_menu_meta_box'), 'nav-menus', 'side', 'default' );
+		add_meta_box( 'qt-languages', __('Languages'), array(&$this, 'nav_menu_meta_box'), 'nav-menus', 'side', 'default' );
 	}
 	
 	
@@ -2128,7 +2267,7 @@ class QtranslateSlug {
 			case 'text':
 			case 'both':
 			
-				echo "<ul id=\"{$args['id']}\" class=\"{$args['class']}\">". PHP_EOL;
+				echo "<ul id=\"{$args['id']}\" class=\"qts_type_{$type} {$args['class']}\">". PHP_EOL;
 				
 				foreach( $languages as $index => $lang ):
 					
@@ -2138,7 +2277,8 @@ class QtranslateSlug {
 					if ( (string)$q_config['language'] == (string)$lang ) $item_class[] = 'current-menu-item';
 					if ( $index == (count($languages) - 1) ) $item_class[] = 'last-child';
 					
-					$item_class = empty($item_class) ? '' : ' class="' . implode(' ', $item_class) . '"';
+          
+					$item_class = ' class="qts_lang_item ' . implode(' ', $item_class) . '"';
 					
 					$language_name = ($args['short']) ? $lang : $q_config['language_name'][$lang];
 					
@@ -2146,7 +2286,7 @@ class QtranslateSlug {
 						$link_class = " class=\"qtrans_flag qtrans_flag_$lang\"";
 						$link_content = "<span style=\"display:none\">$language_name</span>";
 					} else if ( $type == 'both' ) {
-						$link_class = " class=\"qtrans_flag qtrans_flag_$lang\" style=\"padding-left:25px\"";
+						$link_class = " class=\"qts_both qtrans_flag qtrans_flag_$lang\"";
 						$link_content = "$language_name";
 						
 					} else {
@@ -2195,11 +2335,11 @@ class QtranslateSlug {
  *
  * @since 1.0
  */
-if (!defined("QTS_VERSION")) 		define("QTS_VERSION", '1.0');
-if (!defined("QTS_PREFIX")) 		define("QTS_PREFIX", '_qts_');
+if (!defined("QTS_VERSION")) 		    define("QTS_VERSION", '1.1.7');
+if (!defined("QTS_PREFIX")) 		    define("QTS_PREFIX", '_qts_');
 if (!defined("QTS_PAGE_BASENAME")) 	define('QTS_PAGE_BASENAME', 'qtranslate-slug-settings');
 if (!defined("QTS_OPTIONS_NAME")) 	define("QTS_OPTIONS_NAME", 'qts_options');
-if (!defined("PHP_EOL")) 			define("PHP_EOL", "\r\n");
+if (!defined("PHP_EOL")) 			      define("PHP_EOL", "\r\n");
 
 ////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2299,7 +2439,7 @@ add_filter( 'plugin_action_links', 'qts_add_settings_link', 10, 2 );
 
 
 /**
- * Delete plugin stored data ( options, termmeta table and postmeta data ) ################################################ test this function
+ * Delete plugin stored data ( options, termmeta table and postmeta data ) ################################################ TODO: test this function
  *
  * @package Qtranslate Slug
  * @subpackage Settings
