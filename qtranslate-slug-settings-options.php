@@ -13,6 +13,7 @@ function qts_options_page_sections() {
 	$sections = array();
 	$sections['post_types'] = __('Post types', 'qts');
 	$sections['taxonomies'] = __('Taxonomies', 'qts');
+	$sections['styles']     = __('Styles', 'qts');
 	
 	return $sections;	
 }
@@ -41,6 +42,43 @@ function get_multi_txt_choices($name = false) {
 	
 	return $choices;
 }
+
+
+
+/**
+ * Define our form fields (settings) for displaying the default styles
+ *
+ * @package Qtranslate Slug
+ * @subpackage Settings
+ * @version 1.1.7
+ *
+ * @return array
+ */
+function qts_options_page_styles() {
+ 	global $q_config;
+
+    $options[] = array(
+	    "section" => "styles",
+	    "id"      => QTS_PREFIX . "styles",
+	    "title"   => __('Change styles type', 'qts'),
+	    "desc"    => array(
+	    	__("adds a file (qts-default.css) file to the theme's header.", "qts"),
+	    	__("prints the styles directly into the theme's header.", "qts"),
+	    	__("neither include not print the default style.", "qts")
+	    	),
+	    "type"    => "multi-radio",
+	    'class'   => 'qts-style',
+	    "choices" => array(
+	    	"file",
+	    	"inline",
+	    	"none"
+	    	),
+	    "std"     => "file"
+  	);
+  
+	return $options;  
+}
+
 
 
 /**
@@ -115,6 +153,7 @@ function qts_options_page_fields() {
 		
 	endforeach;
 	// end each extra taxonomy
+	
 	
 	return $options;	
 }
