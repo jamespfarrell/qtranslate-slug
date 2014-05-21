@@ -28,9 +28,18 @@ Adds support for permalink translations and fix some QTranslate deficiencies sin
 
 **Advice: If you're using a multisite installation, you will must activate qtranslate plugins by separately on each site.**
 
-
 You can also check the [project website](http://not-only-code.github.com/qtranslate-slug/) hosted on [GitHub](http://not-only-code.github.com).
 Thanks for use this plugin!
+
+= Contributors =
+
+* [Pedro de Carvalho](https://github.com/LC43/)
+* [Risto Niinemets](https://github.com/RistoNiinemets)
+* [Pedro Mendonça](https://github.com/pedro-mendonca)
+* [codep0et](https://github.com/codep0et)
+* [Giraldi Maggio](https://github.com/bedex78)
+* [jinoOM](https://github.com/jinoOM)
+
 
 == Installation ==
 **This plugins requires [Qtranslate](http://wordpress.org/extend/plugins/qtranslate/) or [mqTranslate](https://wordpress.org/plugins/mqtranslate/) installed previously, if not, it will not activate.**
