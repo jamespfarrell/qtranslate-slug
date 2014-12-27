@@ -5,16 +5,27 @@ jQuery(document).ready(function($){
 	wpNavMenu.addMenuItemToBottom = function( menuMarkup, req ) {
 		oldAddMenuItemToBottom( menuMarkup, req );
 		changeTitles();
-	}
+	};
 	var oldAddMenuItemToTop = wpNavMenu.addMenuItemToTop;
 	wpNavMenu.addMenuItemToTop = function( menuMarkup, req ) {
 		oldAddMenuItemToTop( menuMarkup, req );
 		changeTitles();
-	}
+	};
 	
 	// Change titles (and values) when document is ready:
 	var lang = $('#qt-languages :radio:checked').val();
 	changeTitles();
+        
+        /**
+        * Change titles when there is a click on pagination
+        * on show all pages tab.
+        * 
+        * It happens when there are a large number of pages.
+        */
+        $( document ).ajaxComplete(function() {
+            lang = $('#qt-languages :radio:checked').val();
+            changeTitles();
+        });
 	
 	// Change titles (and values) when language is changed:
 	$('#qt-languages :radio').change( function() {
@@ -29,7 +40,7 @@ jQuery(document).ready(function($){
 	});
 		
 	// Update original value when user changed a value:
-	$('input.edit-menu-item-title').live('change', function() {
+	$(document.body).on('change', 'input.edit-menu-item-title', null, function() {
 		regexp = new RegExp('(<!--:' + lang + '-->)(.*?)(<!--:-->)', 'i');
 		if( regexp.test( $(this).data( 'qt-value' ) ) )
 			$(this).data( 'qt-value', $(this).data('qt-value').replace( regexp, '$1' + $(this).val() + '$3' ) );
@@ -83,7 +94,7 @@ jQuery(document).ready(function($){
 	// Just before leaving the page (or refresh) restore the original input values:
 	window.onbeforeunload = function(){ 
 		restoreValues();		
-		return
-	}
+		return;
+	};
 
 });
