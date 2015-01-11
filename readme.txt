@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: qtranslate, slug, multilanguage
 Requires at least: 3.3
 Tested up to: 4.1
-Stable tag: 1.1.9
+Stable tag: 1.1.10
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,7 +21,7 @@ Adds support for permalink translations and fix some QTranslate deficiencies sin
 * Wordpress 3.3 (PHP 5.2 and MySQL 5)
 * mQtranslate 2.6.2.4 or Qtranslate 2.5.8 ( soon qtranslate-x too )
 
-= New in Version 1.1.9 =
+= New in Version 1.1.9 and 1.1.10 =
 
 Lots of bug fixes! Thanks again to everyone that contributed to this project, with commits, bug reports and suggestions.
 
