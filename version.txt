@@ -1,6 +1,8 @@
-= 1.1.10 =
+= 1.1.10 and 1.1.11 =
+* Fixing wrong commit to wp.org
+* Clean deleted files
 
-= 1.1.9 =
+= 1.1.9 and 1.1.10 =
 
 Lots of bug fixes! Thanks again to everyone that contributed to this project, with commits, bug reports and suggestions.
 
