@@ -1,3 +1,5 @@
+= 1.1.10 =
+
 = 1.1.9 =
 
 Lots of bug fixes! Thanks again to everyone that contributed to this project, with commits, bug reports and suggestions.
