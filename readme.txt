@@ -22,7 +22,7 @@ Adds support for permalink translations and fix some QTranslate deficiencies sin
 * mQtranslate 2.6.2.4 or Qtranslate 2.5.8 or qtranslate-x ( 2.9.1 )
 
 
-== New in 1.1.13 ==
+= New in 1.1.13 =
 
 Thanks to returning @pedro-mendonca for these commits:
 * Cleaned duplicated label in widget
@@ -63,7 +63,8 @@ Thanks for use this plugin!
 
 
 == Installation ==
-**This plugins requires [Qtranslate](http://wordpress.org/extend/plugins/qtranslate/) or [mqTranslate](https://wordpress.org/plugins/mqtranslate/) installed previously, if not, it will not activate.**
+**This plugins requires [Qtranslate](http://wordpress.org/extend/plugins/qtranslate/) or [mqTranslate](https://wordpress.org/plugins/mqtranslate/) 
+ir [qtranslate-X](https://wordpress.org/plugins/qtranslate-x/) installed previously, if not, it will not activate.**
 
 1. Upload `qtranslate-slug` to the `/wp-content/plugins/` directory.
 1. Activate the plugin through the 'Plugins' menu in WordPress.
