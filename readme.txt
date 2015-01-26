@@ -23,6 +23,7 @@ Adds support for permalink translations and fix some QTranslate deficiencies sin
 
 
 = New in 1.1.13 =
+
 == Thanks to returning @pedro-mendonca for these commits: ==
 * Cleaned duplicated label in widget
 * Bug fix in "Slug (%s)" string translation
