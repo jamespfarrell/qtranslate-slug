@@ -22,20 +22,20 @@ Adds support for permalink translations and fix some QTranslate deficiencies sin
 * mQtranslate 2.6.2.4 or Qtranslate 2.5.8 or qtranslate-x ( 2.9.1 )
 
 
-= New in 1.1.13 =
+== New in 1.1.13 ==
 
-== Thanks to returning @pedro-mendonca for these commits: ==
+Thanks to returning @pedro-mendonca for these commits:
 * Cleaned duplicated label in widget
 * Bug fix in "Slug (%s)" string translation
 * Changed text strings with no text-domain and with text-domain 'qtranlate' to text-domain 'qts'
 * pot catalog updated with current strings, including last found is "More information about".
-== Thanks to @johnclause for these : ==
+Thanks to @johnclause for these :
 * Convenience links in notice_dependences
 * Menu compatibility with qTranslate-X
 * Fixed extra characters in widget
-### Thanks to vbkun for casting the much wanted function to get a slug based on an id and language
+Thanks to vbkun for casting the much wanted function to get a slug based on an id and language
 * Added a global qts_get_slug( $id, $lang)
-### and sadly:
+and sadly:
 * removed the menu admin box until better implementation
 
 
