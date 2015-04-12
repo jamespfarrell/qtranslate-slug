@@ -1308,8 +1308,6 @@ class QtranslateSlug {
         if ( !$ignore_caller ) {
             $url = call_user_func($this->get_plugin_prefix() . 'convertURL', $url, $this->get_lang(), true);
         }
-        //        if($this->default_language === $this->current_lang){ $url.="/en/" . ltrim( $path, '/' ); }
-
         return $url;
     }
     
