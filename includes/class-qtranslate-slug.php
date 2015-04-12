@@ -562,7 +562,12 @@ class QtranslateSlug {
         
         // remove from qtranslate the discouraged meta http-equiv, inline styles
         // (including flag URLs) and wrong hreflang links   
+        
         remove_action('wp_head', $this->get_plugin_prefix() . 'header');
+        if( "qtranxf_" === $this->get_plugin_prefix() ) {
+            remove_action('wp_head', $this->get_plugin_prefix() . 'head');
+        }
+        
         // add proper hreflang links
         add_action('wp_head',array(&$this, 'qtranslate_slug_header_extended'));
         
@@ -613,8 +618,10 @@ class QtranslateSlug {
     public function qtranslate_slug_header_extended(){
     	if(is_404()) return;
         
-        
+        //taken from qtx 
+        echo '<link hreflang="x-default" href="'.$this->get_current_url($this->default_language) .'" rel="alternate" />'.PHP_EOL;
         foreach($this->get_enabled_languages() as $language) {
+
             if($language != $this->get_currentlang() )
                 echo '<link hreflang="'.$language.'" href="'.$this->get_current_url($language).'" rel="alternate" />'."\n";
         }
@@ -1308,6 +1315,8 @@ class QtranslateSlug {
         if ( !$ignore_caller ) {
             $url = call_user_func($this->get_plugin_prefix() . 'convertURL', $url, $this->get_lang(), true);
         }
+        //        if($this->default_language === $this->current_lang){ $url.="/en/" . ltrim( $path, '/' ); }
+
         return $url;
     }
     
