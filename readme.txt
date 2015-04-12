@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: qtranslate, slug, multilanguage, widget
 Requires at least: 3.3
 Tested up to: 4.1
-Stable tag: 1.1.13
+Stable tag: 1.1.14
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -21,6 +21,13 @@ Adds support for permalink translations and fix some QTranslate deficiencies sin
 * Wordpress 3.3 (PHP 5.4 and MySQL 5)
 * mQtranslate 2.6.2.4 or Qtranslate 2.5.8 or qtranslate-x ( 2.9.1 )
 
+= New in 1.1.15 =
+* Fixes the duplicated hreflang links in <head>
+
+= New in 1.1.14 =
+
+The menu widget didn't allow the visitors to change to the default language if qtranslate-x was being used. So, adjusted the Language Menu widget to play nice with qtranslate-x. 
+Hope to bring some nice changes that were made in the github repository in the next version. For now, enjoy.
 
 = New in 1.1.13 =
 == Thanks to returning @pedro-mendonca for these commits: ==
