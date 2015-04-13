@@ -1315,7 +1315,6 @@ class QtranslateSlug {
         if ( !$ignore_caller ) {
             $url = call_user_func($this->get_plugin_prefix() . 'convertURL', $url, $this->get_lang(), true);
         }
-        //        if($this->default_language === $this->current_lang){ $url.="/en/" . ltrim( $path, '/' ); }
 
         return $url;
     }
@@ -2629,9 +2628,8 @@ class QtranslateSlug {
                     $url = $this->get_current_url($lang);
                     // 43LC: hack to play nice with qtranslate-x
                     if( "qtranxf_" === $this->plugin_prefix && $this->default_language === $lang ) {
-                        $home_url_default = get_home_url();
-                        $home_full_lang = $home_url_default."/$lang";
-                        $url = str_replace($home_url_default,$home_full_lang ,$url);
+
+                        $url = qtranxf_convertURL('',$lang,false,true);
                     }
                     $item_class = array();
                     if ( (string)$q_config['language'] == (string)$lang ) $item_class[] = 'current-menu-item';

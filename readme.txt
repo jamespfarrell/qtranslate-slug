@@ -21,6 +21,9 @@ Adds support for permalink translations and fix some QTranslate deficiencies sin
 * Wordpress 3.3 (PHP 5.4 and MySQL 5)
 * mQtranslate 2.6.2.4 or Qtranslate 2.5.8 or qtranslate-x ( 2.9.1 )
 
+= New in 1.1.16 =
+Minor fix for the language menu using qtranslate's function
+
 = New in 1.1.15 =
 * Fixes the duplicated hreflang links in <head>
 
