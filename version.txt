@@ -1,4 +1,6 @@
-
+= New in 1.1.17 =
+* Fixed dangerous security exploit!
+* Hability to filter the position of the Metabox
 
 = New in 1.1.16 =
 Minor fix for the language menu using qtranslate's function

@@ -3,23 +3,27 @@ Contributors: carlos_a_sanz, pedroghandi
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=SYC46KSLRC4Q8
 Tags: qtranslate, slug, multilanguage, widget
 Requires at least: 3.3
-Tested up to: 4.1.1
-Stable tag: 1.1.16
+Tested up to: 4.2.4
+Stable tag: 1.1.17
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Adds support for permalink translations and fix some QTranslate deficiencies since wordpress 3.0
+Adds support for permalink translations to QTranslate-X since wordpress 3.0
 
 == Description ==
 
-[Qtranslate](http://wordpress.org/plugins/qtranslate/) is a nice plugin but unfortunately today is **outdated**. **Qtranslate Slug** is an addon to QTranslate, which adds support for permalinks translations and fix some QTranslate deficiencies since wordpress 3.0. Check out all the new forks from qtranslate!
+[Qtranslate-X](http://wordpress.org/plugins/qtranslate-x/) is a nice plugin for Multilingual Websites. **Qtranslate Slug** is an addon to QTranslate, which adds support for permalinks translations.
 
-**Version 1.0** has been written from scratch using OOP. The code has been structured better, the functions have been marked and commented and everything is better integrated with Wordpress API.
+1.1.17 fixes a dangerous Security Exploit. Please update right now!
 
 = Requirements: =
 
 * Wordpress 3.3 (PHP 5.4 and MySQL 5)
 * mQtranslate 2.6.2.4 or Qtranslate 2.5.8 or qtranslate-x ( 2.9.1 )
+
+= New in 1.1.17 =
+* Hability to filter the position of the Metabox
+* Fixed dangerous security exploit!
 
 = New in 1.1.16 =
 Minor fix for the language menu using qtranslate's function

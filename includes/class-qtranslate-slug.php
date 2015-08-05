@@ -1108,7 +1108,7 @@ class QtranslateSlug {
             foreach( $this->get_enabled_languages() as $lang ) {
                 
                 $this->lang = $lang;
-                $this->current_url[$lang] = apply_filters('qts_url_args', call_user_func($function, $id));
+                $this->current_url[$lang] = esc_url(apply_filters('qts_url_args', call_user_func($function, $id)));
             }
 
             $this->lang = false;
@@ -1925,11 +1925,14 @@ class QtranslateSlug {
         
         if ( function_exists( 'add_meta_box' ) ) {
             
-            add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array(&$this, 'draw_meta_box'), 'post', 'side', 'high');
-            add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array(&$this, 'draw_meta_box'), 'page', 'side', 'high' );
+            $context  = apply_filters("qts_admin_meta_box_context","side");
+            $priority = apply_filters("qts_admin_meta_box_priority","high");
+
+            add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array(&$this, 'draw_meta_box'), 'post', $context, $priority);
+            add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array(&$this, 'draw_meta_box'), 'page', $context, $priority);
             
             foreach ( get_post_types( array('_builtin' => false ) ) as $ptype )
-                add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array(&$this, 'draw_meta_box'), $ptype, 'side', 'high' );
+                add_meta_box( 'qts_sectionid', __('Slug', 'qts'), array(&$this, 'draw_meta_box'), $ptype, $context, $priority );
         }
     }
     
